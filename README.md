@@ -29,6 +29,6 @@ docker pull h4nke2/lottery:test2
 创建容器：
 
 ```sh
-run -itd -p 3000:3000 h4nke2/lottery:test2
+run -itd -p 3000:3000 h4nke2/lottery
 ```
 
