@@ -29,7 +29,7 @@ docker pull h4nke2/lottery
 创建容器：
 
 ```sh
-run -itd -p 3000:3000 h4nke2/lottery
+docker run -itd -p 3000:3000 h4nke2/lottery
 ```
 ## docker-compose一键部署
 编写`docker-compose.yml`
