@@ -29,6 +29,10 @@ docker pull h4nke2/lottery:test2
 创建容器：
 
 ```sh
+<<<<<<< HEAD
 run -itd -p 3000:3000 h4nke2/lottery
+=======
+docker run -itd -p 3000:3000 h4nke2/lottery:test2
+>>>>>>> b81fadcbd3e3fbbe6ede923322611a50076e0a80
 ```
 
