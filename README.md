@@ -23,16 +23,26 @@ node server.js
 拉取docker镜像：
 
 ```dockerfile
-docker pull h4nke2/lottery:test2
+docker pull h4nke2/lottery
 ```
 
 创建容器：
 
 ```sh
-<<<<<<< HEAD
 run -itd -p 3000:3000 h4nke2/lottery
-=======
-docker run -itd -p 3000:3000 h4nke2/lottery:test2
->>>>>>> b81fadcbd3e3fbbe6ede923322611a50076e0a80
 ```
-
+## docker-compose一键部署
+编写`docker-compose.yml`
+```sh
+version: "3.8"
+services:
+  lottery:
+    container_name: "lottory_everyone"
+    image: "h4nke2/lottery:v3"
+    ports:
+      - "3000:3000"
+```
+运行下面命令部署创建容器：
+```sh
+docker-compose up -d
+```
