@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中奖名单</title>
+</head>
+<body>
+
+<h2>中奖名单</h2>
+
+<ul id="winnersList"></ul>
+
+<script>
+    // 使用 fetch 获取中奖名单数据
+    fetch('/winners')
+        .then(response => response.json())
+        .then(data => {
+            // 获取中奖名单列表元素
+            const winnersList = document.getElementById('winnersList');
+
+            // 遍历中奖名单数据，动态创建列表项并添加到页面中
+            data.forEach(winner => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${winner.name} - ${winner.rewardLevel}`;
+                winnersList.appendChild(listItem);
+            });
+        })
+        .catch(error => console.error('Error:', error));
+</script>
+
+</body>
+</html>

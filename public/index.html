@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽奖</title>
+    <style>
+        /* 设置整个页面的背景颜色为浅灰色 */
+        body {
+            background-color: white;
+        }
+
+        /* 设置标题为黑色，居中对齐，加粗，下面有一条蓝色的边框 */
+        h2 {
+            color: black;
+            text-align: center;
+            font-weight: bold;
+        //border-bottom: 3px solid blue;
+        }
+
+        /* 设置表单的宽度为80%，居中显示，有一个白色的背景和一个灰色的边框 */
+        #userForm {
+            width: 300px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5); /* 添加一个黑色的半透明的阴影，偏移为0，模糊为10px */
+            border-radius: 10px; /* 添加一个10px的圆角 */
+        }
+
+        /* 设置标签的字体为黑色，右对齐，有一个10像素的右边距 */
+        label {
+            color: black;
+            text-align: right;
+            margin-right: 10px;
+        }
+
+        /* 设置输入框和下拉菜单的宽度为50%，左对齐，有一个蓝色的边框 */
+        input, select {
+            width: 50%;
+            text-align: left;
+        //border: 1px solid blue;
+        }
+
+        /* 设置按钮的背景颜色为蓝色，字体为白色，居中对齐，有一个5像素的上边距 */
+        button {
+            background-color: white;
+            color: black;
+            text-align: center;
+            margin: 5px auto 0;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5); /* 添加一个黑色的半透明的阴影，偏移为0，模糊为10px */
+            border-radius: 3px; /* 添加一个10px的圆角 */
+        }
+    </style>
+</head>
+<body>
+<h2>输入信息</h2>
+<form id="userForm">
+    <label for="number">号码：</label><input type="text" id="number" required><br>
+    <label for="name">姓名：</label><input type="text" id="name" required><br>
+    <div style="text-align:center">
+        <button type="button" onclick="submitForm()">提交</button>
+    </div>
+
+</form>
+<form id="subForm">
+</form>
+
+<script>
+
+    function submitForm() {
+        // 获取用户输入
+        const number = document.getElementById('number').value;
+        const name = document.getElementById('name').value;
+        console.log(number)
+        // 发送用户信息到后端
+        fetch('/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ number, name }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert('提交成功');
+                //document.getElementById('userForm').reset();
+                //showResultsButton();
+                console.log(number)
+
+                const resultsButton = document.createElement('button');
+                resultsButton.innerText = '查看抽奖结果';
+                resultsButton.onclick = () => window.location.href = `/results/${number}`
+                document.body.appendChild(resultsButton);
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function showResultsButton() {
+        //const num = document.getElementById('number').value;
+        const num = document.getElementById('number').value;
+        console.log(num)
+        const resultsButton = document.createElement('button');
+        resultsButton.innerText = '查看抽奖结果';
+        //resultsButton.onclick = () => window.location.href = `/public/result_${number}.html`
+        resultsButton.onclick = () => window.location.href = `/results/${num}`
+        document.body.appendChild(resultsButton);
+    }
+</script>
+</body>
+</html>

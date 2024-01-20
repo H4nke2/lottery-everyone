@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置页面</title>
+    <style>
+        /* 设置整个页面的背景颜色为浅灰色 */
+        body {
+            background-color: white;
+        }
+
+        /* 设置标题为黑色，居中对齐，加粗，下面有一条蓝色的边框 */
+        h2 {
+            color: black;
+            text-align: center;
+            font-weight: bold;
+            //border-bottom: 3px solid blue;
+        }
+
+        /* 设置表单的宽度为80%，居中显示，有一个白色的背景和一个灰色的边框 */
+        #adminForm {
+            width: 300px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5); /* 添加一个黑色的半透明的阴影，偏移为0，模糊为10px */
+            border-radius: 10px; /* 添加一个10px的圆角 */
+        }
+
+        /* 设置标签的字体为黑色，右对齐，有一个10像素的右边距 */
+        label {
+            color: black;
+            text-align: right;
+            margin-right: 10px;
+        }
+
+        /* 设置输入框和下拉菜单的宽度为50%，左对齐，有一个蓝色的边框 */
+        input, select {
+            width: 30%;
+            text-align: left;
+            //border: 1px solid blue;
+        }
+
+        /* 设置按钮的背景颜色为蓝色，字体为白色，居中对齐，有一个5像素的上边距 */
+        button {
+            width: 20%;
+            background-color: white;
+            color: black;
+            text-align: center;
+            margin: 10px auto 0;
+            box-shadow: 0 0 5px rgba(0,0,0,10); /* 添加一个黑色的半透明的阴影，偏移为0，模糊为10px */
+            border-radius: 3px; /* 添加一个10px的圆角 */
+        }
+    </style>
+
+</head>
+<body>
+<h2>抽奖设置</h2>
+<form id="adminForm">
+    <label for="numWinners">抽奖人数：</label>
+    <input type="number" id="numWinners" value="5" min="1" required><br>
+
+    <label for="rewardLevel">奖励等级：</label>
+    <select id="rewardLevel" required>
+        <option value="一等奖">一等奖</option>
+        <option value="二等奖">二等奖</option>
+        <option value="三等奖">三等奖</option>
+        <!-- 添加其他奖励等级选项 -->
+    </select><br>
+
+    <!--<button type="button" onclick="drawLottery()">抽奖</button>-->
+    <div style="text-align:center">
+        <button type="button" onClick="drawLottery()">抽奖</button>
+    </div>
+</form>
+
+<script>
+    function drawLottery() {
+        // 获取管理员设置
+        const numWinners = document.getElementById('numWinners').value;
+        const rewardLevel = document.getElementById('rewardLevel').value;
+
+        // 发送抽奖请求到后端
+        fetch(`/draw?numWinners=${numWinners}&rewardLevel=${rewardLevel}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                alert('抽奖完成');
+                // 处理抽奖结果，例如跳转到中奖用户的结果页面
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+</body>
+</html>
