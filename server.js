@@ -5,20 +5,17 @@ const path = require('path');
 const {response, request} = require("express");
 const app = express();
 const port = 3000;
-// 在 server.js 中添加静态文件中间件
 app.use(express.json());
 app.use(bodyParser.json());
-// 静态文件中间件，指定根目录为 public 文件夹
 app.use(express.static(path.join(__dirname, 'public')));
-// 根路径路由处理，直接返回 index.html
+app.use(express.static(path.join(__dirname, 'users_html')));
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-// 存储用户信息的 JSON 文件路径
 const userFilePath = 'user.json';
-const lastUserFile = 'lastUser.json'
+const lastUserFile = 'lastUser.json';
 
-// 读取用户信息
+
 const readUsers = () => {
     try {
         const data = fs.readFileSync(userFilePath, 'utf8');
@@ -35,8 +32,6 @@ const readLastUsers = () => {
         return [];
     }
 };
-
-// 写入用户信息
 const writeUsers = (users) => {
     fs.writeFileSync(userFilePath, JSON.stringify(users, null, 2), 'utf8');
 };
@@ -44,11 +39,6 @@ const writeLastUsers = (lastUsers) => {
     fs.writeFileSync(lastUserFile, JSON.stringify(lastUsers, null, 2), 'utf8');
 };
 
-
-
-
-
-// 路由处理
 app.post('/submit', (req, res) => {
     const { number, name } = req.body;
     const users = readUsers();
@@ -57,6 +47,7 @@ app.post('/submit', (req, res) => {
     // 检查用户是否已存在
     const existingUser = users.find(user => user.number === number);
     if (existingUser) {
+        //alert('您已在抽奖名单中')
         return res.status(400).json({ error: '用户已存在' });
     }
 
@@ -82,7 +73,7 @@ app.post('/startDraw', (req, res) => {
     res.json({ success: true });
 });
 
-    // 抽奖路由处理
+// 抽奖路由处理
 app.get('/draw', (req, res) => {
         const numWinners = parseInt(req.query.numWinners) || 5;
         const rewardLevel = req.query.rewardLevel || '一等奖';
@@ -103,8 +94,7 @@ app.get('/draw', (req, res) => {
             winners.push(winner);
 
             // 为中奖用户创建结果页面，放在 public 目录下
-            //const num = req.params.number
-            const resultFilePath = path.join(__dirname, 'public', `${winner.number}_result.html`);
+            const resultFilePath = path.join(__dirname, 'users_html', `${winner.number}_result.html`);
             //const user = readUsers().find(user => user.number === num);
             fs.writeFileSync(resultFilePath, `
 <html lang="cn_ZH">
@@ -158,7 +148,9 @@ app.get('/draw', (req, res) => {
         // 为未中奖用户创建结果页面，放在 public 目录下
         for (const user of users) {
             const resultFilePath = path.join(__dirname, 'public', `${user.number}_result.html`);
-            fs.writeFileSync(resultFilePath, `<html lang="cn_ZH"><head><title>抽奖结果</title><style>
+            fs.writeFileSync(resultFilePath, `
+<html lang="cn_ZH"><head><title>抽奖结果</title>
+<style>
     /* 设置整个页面的背景颜色为浅蓝色 */
     body {
         background-color: #e0f0ff;
@@ -197,19 +189,7 @@ app.get('/draw', (req, res) => {
          </script>
          </body></html>`);
         }
-       // const updatedUsers = readUsers().map(user => {
-            //const foundWinner = winners.find(winner => winner.number === user.number);
-           // if (foundWinner) {
-           //     user.won = true;
-           //     user.level = getLevelByReward(rewardLevel);
-           // }
-          //  return user;
-      //  });
-    // 将中奖用户的信息追加到用户列表中
-    // const updatedUsers = users.map(user => ({
-    //     ...user,
-    //     won: winners.some(winner => winner.number === user.number),
-    // }));
+
     const updatedNonWinners = users.map(user => ({
         ...user,
         round: user.round + 1,
@@ -225,10 +205,9 @@ app.get('/draw', (req, res) => {
         res.json({ won: true, winners });
     });
 
-
 app.get('/results/:number', (req, res) => {
     const number = req.params.number
-    const resultFilePath1 = path.join(__dirname, 'public', `${number}_result.html`);
+    const resultFilePath1 = path.join(__dirname, 'users_html', `${number}_result.html`);
     //console.log('Requested result for user number:', number);
     //console.log('Result file path:', resultFilePath1);
 
@@ -266,7 +245,6 @@ app.get('/results/:number', (req, res) => {
             <div style="text-align: center;"><h1>抽奖还没开始，稍作等待</p></div>
             <button id="viewWinnersButton">查看中奖名单</button>
 
-            <!-- JavaScript 代码 -->
         <script>
                 // 按钮点击事件
                 document.getElementById('viewWinnersButton').onclick = function() {
@@ -278,36 +256,42 @@ app.get('/results/:number', (req, res) => {
    </html>`);
     }
 });
+
 app.get('/winners', (req, res) => {
     const users = readUsers();
-
     // 筛选出中奖者的信息
     const winnersData = users.filter(user => user.won)
         .map(user => ({ name: user.name, rewardLevel: getRewardLevel(user.level), round: user.round }));
-
     // 生成 HTML 页面
     const htmlContent = generateWinnersHTML(winnersData);
-
     // 发送 HTML 页面给前端
     res.send(htmlContent);
+});
+
+app.get('/checkUser', (req, res) => {
+    const userNumber = req.query.number;
+    // 读取用户信息
+    const users = readUsers();
+    // 检查用户是否存在
+    const userExists = users.some(user => user.number === userNumber);
+    // 返回 JSON 数据，指示用户是否存在
+    res.json({ exists: userExists });
 });
 
 // 辅助函数：生成中奖者信息的 HTML 页面
 function generateWinnersHTML(winnersData) {
     let htmlContent = '<html lang=""><head><title>中奖者名单</title></head><body>';
-
     // 根据中奖者信息按照轮次生成 HTML 内容
     winnersData.forEach(winner => {
         htmlContent += `<p>第 ${winner.round} 轮抽奖 - 奖励等级：${winner.rewardLevel} - 姓名：${winner.name}</p>`;
     });
-
     htmlContent += '</body></html>';
-
     return htmlContent;
 }
+app.get('/set', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
 
-
-// 辅助函数：根据中奖等级获取奖励等级的字符串表示
 function getRewardLevel(level) {
     // 这里可以根据实际情况设置中奖等级对应的奖励等级
     // 这里简单示范，假设 1 对应一等奖，2 对应二等奖，3 对应三等奖
@@ -323,7 +307,7 @@ function getRewardLevel(level) {
             return '未知奖项';
     }
 }
-// 辅助函数：根据奖励等级获取抽奖等级
+
 function getLevelByReward(rewardLevel) {
     // 这里可以根据实际情况设置奖励等级对应的抽奖等级
     // 这里简单示范，假设 '一等奖' 对应 1， '二等奖' 对应 2， '三等奖' 对应 3
@@ -339,13 +323,6 @@ function getLevelByReward(rewardLevel) {
             return 0; // 默认为0
     }
 }
-
-
-
-app.get('/set', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
 });

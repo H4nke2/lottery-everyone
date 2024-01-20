@@ -72,40 +72,40 @@
         // 获取用户输入
         const number = document.getElementById('number').value;
         const name = document.getElementById('name').value;
-        console.log(number)
-        // 发送用户信息到后端
-        fetch('/submit', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ number, name }),
-        })
+
+        // 检查是否已存在于抽奖名单中
+        fetch(`/checkUser?number=${number}`)
             .then(response => response.json())
             .then(data => {
-                alert('提交成功');
-                //document.getElementById('userForm').reset();
-                //showResultsButton();
-                console.log(number)
-
-                const resultsButton = document.createElement('button');
-                resultsButton.innerText = '查看抽奖结果';
-                resultsButton.onclick = () => window.location.href = `/results/${number}`
-                document.body.appendChild(resultsButton);
+                if (data.exists) {
+                    alert('您已经在抽奖名单中');
+                    const resultsButton = document.createElement('button');
+                    resultsButton.innerText = '查看抽奖结果';
+                    resultsButton.onclick = () => window.location.href = `/results/${number}`
+                    document.body.appendChild(resultsButton);
+                } else {
+                    // 发送用户信息到后端
+                    fetch('/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ number, name }),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            alert('提交成功');
+                            const resultsButton = document.createElement('button');
+                            resultsButton.innerText = '查看抽奖结果';
+                            resultsButton.onclick = () => window.location.href = `/results/${number}`
+                            document.body.appendChild(resultsButton);
+                        })
+                        .catch(error => console.error('Error:', error));
+                }
             })
             .catch(error => console.error('Error:', error));
     }
 
-    function showResultsButton() {
-        //const num = document.getElementById('number').value;
-        const num = document.getElementById('number').value;
-        console.log(num)
-        const resultsButton = document.createElement('button');
-        resultsButton.innerText = '查看抽奖结果';
-        //resultsButton.onclick = () => window.location.href = `/public/result_${number}.html`
-        resultsButton.onclick = () => window.location.href = `/results/${num}`
-        document.body.appendChild(resultsButton);
-    }
 </script>
 </body>
 </html>
